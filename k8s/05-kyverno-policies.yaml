@@ -1,0 +1,46 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-root-user
+spec:
+  validationFailureAction: Enforce
+  background: false
+  rules:
+  - name: validate-runAsNonRoot
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          namespaces:
+          - zta-demo
+    validate:
+      message: "Running as root is not allowed (Zero Trust requirement). Set runAsNonRoot: true."
+      pattern:
+        spec:
+          securityContext:
+            runAsNonRoot: true
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-privileged-containers
+spec:
+  validationFailureAction: Enforce
+  background: false
+  rules:
+  - name: validate-privileged
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+          namespaces:
+          - zta-demo
+    validate:
+      message: "Privileged containers are explicitly forbidden in ZTA!"
+      pattern:
+        spec:
+          containers:
+          - =(securityContext):
+              =(privileged): false

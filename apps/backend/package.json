@@ -1,0 +1,16 @@
+{
+    "name": "zta-backend",
+    "version": "1.0.0",
+    "description": "Backend API",
+    "main": "server.js",
+    "dependencies": {
+        "cors": "^2.8.6",
+        "dotenv": "^17.4.2",
+        "express": "^4.18.2",
+        "jsonwebtoken": "^9.0.3",
+        "redis": "^4.6.10"
+    },
+    "scripts": {
+        "start": "node server.js"
+    }
+}
