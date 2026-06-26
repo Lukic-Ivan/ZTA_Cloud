@@ -32,16 +32,53 @@ app.post('/api/login', (req, res) => {
         const token = jwt.sign(
             { id: user.id, username: user.username, role: user.role },
             JWT_SECRET,
-            { expiresIn: '1h' }
+            { expiresIn: '15m' }
+        );
+        const refreshToken = jwt.sign(
+            { id: user.id, username: user.username },
+            JWT_SECRET,
+            { expiresIn: '7d' }
         );
 
         res.json({
             message: 'Uspesna autentifikacija',
-            token: token
+            token: token,
+            refreshToken: refreshToken
         });
     } else {
         res.status(401).json({ message: 'Neispravni kredencijali' });
     }
+});
+
+app.post('/api/refresh', (req, res) => {
+    const { token } = req.body;
+
+    if (!token) {
+        return res.status(401).json({ message: 'Refresh token nije prosleđen' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = users.find(u => u.id === decoded.id);
+
+        if (!user) {
+            return res.status(403).json({ message: 'Korisnik ne postoji' });
+        }
+
+        const newToken = jwt.sign(
+            { id: user.id, username: user.username, role: user.role },
+            JWT_SECRET,
+            { expiresIn: '15m' }
+        );
+
+        res.json({ token: newToken });
+    } catch (err) {
+        return res.status(403).json({ message: 'Nevalidan ili istekao refresh token' });
+    }
+});
+
+app.post('/api/logout', (req, res) => {
+    res.json({ message: 'Token uspešno opozvan (odjavljeni ste)' });
 });
 
 app.listen(port, '0.0.0.0', () => {

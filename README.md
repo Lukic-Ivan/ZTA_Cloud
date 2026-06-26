@@ -14,6 +14,8 @@ Projekat se sastoji od četiri komponente:
 1. **Eksplicitna verifikacija i Najmanje privilegije (JWT & RBAC):**
    - Implementiran je *Auth-service* koji izdaje JWT tokene.
    - *Backend* zahteva validan token za svaki pristup i verifikuje ulogu (`user` ili `admin`) pre nego što dozvoli pristup određenom resursu.
+   - **Trajanje tokena i Refresh tokeni:** U skladu sa ZTA, pristupni (access) JWT tokeni imaju kratko trajanje (npr. 15 minuta) kako bi se smanjio prozor ranjivosti. Za kontinuirani rad bez česte ponovne prijave koriste se *Refresh tokeni* sa dužim trajanjem.
+   - **Opoziv (Revocation) i rizik kompromitacije:** Ako pristupni token bude ukraden, napadač ga može koristiti samo dok ne istekne. Da bi se rizik dodatno ublažio, sistem predviđa mehanizam za **opoziv tokena** (npr. *deny-list* smešten u brzoj bazi poput Redisa). Prilikom odjave (logout) ili detekcije sumnjive aktivnosti, token se smešta na crnu listu, te ga backend odbija čak i pre isteka.
 2. **Mrežna Segmentacija (NetworkPolicies):** 
    - Postavljen je *Default Deny* na celom `zta-demo` namespace-u unutar klastera.
    - Pravila komunikacije eksplicitno dozvoljavaju isključivo tok: `Frontend -> Backend -> Database`. 
